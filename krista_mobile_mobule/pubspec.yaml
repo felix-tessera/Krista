@@ -39,6 +39,8 @@ dependencies:
   intl: any
   internet_connection_checker: ^1.0.0+1
 
+  photo_manager: ^2.7.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
