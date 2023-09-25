@@ -1,4 +1,5 @@
 {
     "helloWorld": "Привет мир!",
-    "hasConnectionFalse": "Нет подключения к интернету :("
+    "hasConnectionFalse": "Нет подключения к интернету :(",
+    "makingTtBetter": "Делаем лучше"
 }

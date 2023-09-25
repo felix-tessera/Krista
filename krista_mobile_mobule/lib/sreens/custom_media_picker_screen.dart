@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MediaGrid extends StatefulWidget {
   const MediaGrid({super.key});
@@ -13,6 +15,7 @@ class _MediaGridState extends State<MediaGrid> {
   int currentPage = 0;
   int lastPage = 0;
   dynamic allAlbums = [];
+  List<String> allAlbumsNames = [];
 
   @override
   void initState() {
@@ -34,11 +37,8 @@ class _MediaGridState extends State<MediaGrid> {
     if (result.isAuth) {
       List<AssetPathEntity> albums =
           await PhotoManager.getAssetPathList(type: RequestType.image);
-      allAlbums = albums;
-//      debugPrint(albums.toString());
       List<AssetEntity> media =
           await albums[0].getAssetListPaged(page: currentPage, size: 60);
-
       List<Widget> temp = [];
       for (var asset in media) {
         temp.add(
@@ -49,14 +49,11 @@ class _MediaGridState extends State<MediaGrid> {
                 return Stack(
                   children: <Widget>[
                     Positioned.fill(
-                        child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.memory(
-                          snapshot.data!,
-                          fit: BoxFit.cover,
-                        ),
+                        child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                      child: Image.memory(
+                        snapshot.data!,
+                        fit: BoxFit.cover,
                       ),
                     ))
                   ],
@@ -82,26 +79,62 @@ class _MediaGridState extends State<MediaGrid> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 16, 15, 22),
-        title: const Text(
-          'Mock',
-          style: TextStyle(color: Color.fromARGB(255, 224, 224, 224)),
+        elevation: 20,
+        toolbarHeight: 60,
+        backgroundColor: const Color.fromARGB(255, 16, 15, 22),
+        title: Padding(
+          padding: const EdgeInsets.only(left: 5, right: 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SvgPicture.asset(
+                'assets/images/krista_icon.svg',
+                color: const Color.fromARGB(255, 224, 224, 224),
+                width: 40,
+              ),
+              Column(
+                children: [
+                  const Text(
+                    'Krista',
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 224, 224, 224),
+                        fontWeight: FontWeight.bold),
+                  ),
+                  Text(AppLocalizations.of(context)!.makingTtBetter,
+                      style: const TextStyle(
+                        color: Color.fromARGB(155, 224, 224, 224),
+                        fontSize: 15,
+                      ))
+                ],
+              ),
+              const Icon(
+                Icons.settings,
+                color: Color.fromARGB(255, 224, 224, 224),
+              ),
+            ],
+          ),
         ),
         centerTitle: true,
       ),
-      backgroundColor: Color.fromARGB(255, 16, 15, 22),
+      backgroundColor: const Color.fromARGB(255, 16, 15, 22),
       body: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scroll) {
           _handleScrollEvent(scroll);
           return true;
         },
-        child: GridView.builder(
-            itemCount: _mediaList.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                childAspectRatio: (1 / 1.4), crossAxisCount: 2),
-            itemBuilder: (BuildContext context, int index) {
-              return _mediaList[index];
-            }),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 5, right: 5),
+          child: GridView.builder(
+              itemCount: _mediaList.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                mainAxisSpacing: 5,
+                crossAxisSpacing: 5,
+                crossAxisCount: 3,
+              ),
+              itemBuilder: (BuildContext context, int index) {
+                return _mediaList[index];
+              }),
+        ),
       ),
     );
   }
