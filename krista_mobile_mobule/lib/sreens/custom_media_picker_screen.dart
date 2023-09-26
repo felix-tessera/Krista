@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:krista_mobile_mobule/sreens/editing_screen.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -35,8 +38,9 @@ class _MediaGridState extends State<MediaGrid> {
     lastPage = currentPage;
     final PermissionState result = await PhotoManager.requestPermissionExtend();
     if (result.isAuth) {
-      List<AssetPathEntity> albums =
-          await PhotoManager.getAssetPathList(type: RequestType.image);
+      List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
+          type: RequestType.image, onlyAll: true);
+      debugPrint(albums.toString());
       List<AssetEntity> media =
           await albums[0].getAssetListPaged(page: currentPage, size: 60);
       List<Widget> temp = [];
@@ -49,11 +53,23 @@ class _MediaGridState extends State<MediaGrid> {
                 return Stack(
                   children: <Widget>[
                     Positioned.fill(
-                        child: ClipRRect(
-                      borderRadius: const BorderRadius.all(Radius.circular(5)),
-                      child: Image.memory(
-                        snapshot.data!,
-                        fit: BoxFit.cover,
+                        child: GestureDetector(
+                      onTap: () async {
+                        File? selectedImage = await asset.file;
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => EditingScreen(
+                                      selectedImage: selectedImage,
+                                    )));
+                      },
+                      child: ClipRRect(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(5)),
+                        child: Image.memory(
+                          snapshot.data!,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ))
                   ],
