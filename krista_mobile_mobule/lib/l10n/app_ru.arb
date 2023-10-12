@@ -1,5 +1,9 @@
 {
     "helloWorld": "Привет мир!",
     "hasConnectionFalse": "Нет подключения к интернету :(",
-    "makingTtBetter": "Делаем лучше"
+    "makingTtBetter": "Делаем лучше",
+    "save": "Сохранить",
+    "inTheGallery": "Скачать в галерею",
+    "saved": "Сохранено",
+    "share": "Поделиться с друзьями"
 }

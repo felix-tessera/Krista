@@ -1,5 +1,9 @@
 {
     "helloWorld": "Hello World!",
     "hasConnectionFalse": "No internet connection :(",
-    "makingTtBetter": "Making it better"
+    "makingTtBetter": "Making it better",
+    "save": "Save",
+    "inTheGallery": "Download to gallery",
+    "saved": "Saved",
+    "share": "Share with friends"
 }
