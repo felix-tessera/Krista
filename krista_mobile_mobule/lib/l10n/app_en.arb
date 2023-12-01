@@ -5,5 +5,8 @@
     "save": "Save",
     "inTheGallery": "Download to gallery",
     "saved": "Saved",
-    "share": "Share with friends"
+    "share": "Share with friends",
+    "style": "Style",
+    "color": "Color",
+    "quality": "Quality"
 }

@@ -17,19 +17,28 @@ class EditingScreen extends StatefulWidget {
   State<EditingScreen> createState() => _EditingScreenState();
 }
 
-class _EditingScreenState extends State<EditingScreen> {
+class _EditingScreenState extends State<EditingScreen>
+    with SingleTickerProviderStateMixin {
   Color color1 = const Color.fromARGB(0, 0, 0, 0);
   Color color2 = const Color.fromARGB(0, 0, 0, 0);
   bool isImageSave = false;
 
-  Widget editingSection1 = Container(
-    key: ValueKey(0),
-  );
+  late AnimationController _controller;
+  late Animation<double> _sizeAnimation;
+
+  bool _isEditingMenuItemActive = false;
 
   @override
   void initState() {
     super.initState();
     setBackgroundDominationColor();
+
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
+    _sizeAnimation = Tween<double>(begin: 20.0, end: 20.0).animate(_controller);
+    _controller.addListener(() {
+      setState(() {});
+    });
   }
 
   setBackgroundDominationColor() async {
@@ -215,37 +224,77 @@ class _EditingScreenState extends State<EditingScreen> {
             children: [
               Align(
                 alignment: Alignment.bottomCenter,
-                child: SizedBox(
-                  height: 120,
-                  child: ListView(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      GestureDetector(
-                        child: EditingSection(),
-                        onTap: () {
-                          setState(() {
-                            editingSection1 =
-                                EditingSection.thisSectionFunctions;
-                          });
-                        },
-                      ),
-                      EditingSection(),
-                      EditingSection(),
-                    ],
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: _sizeAnimation.value),
+                  child: SizedBox(
+                    height: 100,
+                    child: ListView(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            _isEditingMenuItemActive =
+                                !_isEditingMenuItemActive;
+                            if (_isEditingMenuItemActive) {
+                              _controller.forward();
+                              setState(() {
+                                currentFilterList = styleFilters;
+                              });
+                            } else {
+                              _controller.reverse();
+                              setState(() {
+                                currentFilterList = filtersMock;
+                              });
+                            }
+                          },
+                          child: EditingMenuItem(
+                            menuItemIcon: Icons.style_outlined,
+                            menuItemName: AppLocalizations.of(context)!.style,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            _isEditingMenuItemActive =
+                                !_isEditingMenuItemActive;
+                            if (_isEditingMenuItemActive) {
+                              _controller.forward();
+                            } else {
+                              _controller.reverse();
+                            }
+                          },
+                          child: EditingMenuItem(
+                            menuItemIcon: Icons.color_lens_outlined,
+                            menuItemName: AppLocalizations.of(context)!.color,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            _isEditingMenuItemActive =
+                                !_isEditingMenuItemActive;
+                            if (_isEditingMenuItemActive) {
+                              _controller.forward();
+                            } else {
+                              _controller.reverse();
+                            }
+                          },
+                          child: EditingMenuItem(
+                            menuItemIcon: Icons.auto_awesome,
+                            menuItemName: AppLocalizations.of(context)!.quality,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (child, animation) => SlideTransition(
-                  position: Tween<Offset>(
-                    begin: Offset(0, 1), // Slide from right to left
-                    end: Offset.zero,
-                  ).animate(animation),
+                duration: Duration(milliseconds: 200),
+                transitionBuilder: (child, animation) => ScaleTransition(
+                  scale: animation,
                   child: child,
                 ),
-                child: editingSection1,
+                child: currentFilterList,
               )
             ],
           )
@@ -253,78 +302,112 @@ class _EditingScreenState extends State<EditingScreen> {
   }
 }
 
-class EditingSection extends StatelessWidget {
-  EditingSection({
-    super.key,
-  });
+class EditingMenuItem extends StatefulWidget {
+  EditingMenuItem(
+      {super.key, required this.menuItemIcon, required this.menuItemName});
 
-  static Widget thisSectionFunctions = SizedBox(
-    height: 100,
-    child: ListView(scrollDirection: Axis.horizontal, children: const [
-      EditingFunctionWidget(),
-      EditingFunctionWidget(),
-      EditingFunctionWidget(),
-      EditingFunctionWidget(),
-    ]),
-  );
+  final String menuItemName;
+  final IconData menuItemIcon;
+
+  @override
+  State<EditingMenuItem> createState() => _EditingMenuItemState();
+}
+
+class _EditingMenuItemState extends State<EditingMenuItem> {
+  static const double iconSize = 50.0;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 20),
-        child: Container(
-            width: 100,
-            height: 100,
-            color: Colors.black,
-            child: const Center(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.style,
-                    color: Color.fromARGB(255, 224, 224, 224),
-                    size: 70,
-                  ),
-                  Text(
-                    'Name',
-                    style: TextStyle(color: Color.fromARGB(255, 224, 224, 224)),
-                  )
-                ],
-              ),
-            )),
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10),
+      child: Container(
+        width: 100,
+        height: 100,
+        // color: Colors.black,
+        child: Column(children: [
+          Icon(
+            widget.menuItemIcon,
+            color: const Color.fromARGB(255, 224, 224, 224),
+            size: iconSize,
+            shadows: const [
+              Shadow(
+                color: Colors.white,
+                blurRadius: 5.0,
+              )
+            ],
+          ),
+          Text(
+            widget.menuItemName,
+            style: const TextStyle(
+                color: Color.fromARGB(255, 224, 224, 224),
+                fontWeight: FontWeight.w700),
+          )
+        ]),
       ),
     );
   }
 }
 
-class EditingFunctionWidget extends StatelessWidget {
-  const EditingFunctionWidget({
-    super.key,
-  });
+class MenuItemFilter extends StatefulWidget {
+  const MenuItemFilter({super.key, required this.filterName});
 
+  final filterName;
+
+  @override
+  State<MenuItemFilter> createState() => _MenuItemFilterState();
+}
+
+class _MenuItemFilterState extends State<MenuItemFilter> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10),
+      padding: const EdgeInsets.only(left: 5, right: 5, bottom: 10),
       child: Container(
-          width: 100,
-          height: 100,
-          color: Colors.black,
-          child: const Center(
-            child: Column(
-              children: [
-                Icon(
-                  Icons.style,
-                  color: Color.fromARGB(255, 224, 224, 224),
-                  size: 70,
-                ),
-                Text(
-                  'Name',
-                  style: TextStyle(color: Color.fromARGB(255, 224, 224, 224)),
-                )
-              ],
+        width: 100,
+        height: 100,
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(
+                  'https://i.pinimg.com/564x/35/ba/25/35ba25c1966a6df120294d495dc21b28.jpg'),
+              fit: BoxFit.cover,
             ),
-          )),
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 7),
+            child: Text(
+              widget.filterName,
+              style: const TextStyle(
+                  color: Color.fromARGB(255, 224, 224, 224),
+                  fontWeight: FontWeight.w700,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black,
+                      blurRadius: 10,
+                    )
+                  ]),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
+
+Widget currentFilterList = filtersMock;
+
+Widget styleFilters = SizedBox(
+  height: 110,
+  child: ListView(
+    scrollDirection: Axis.horizontal,
+    children: const [
+      MenuItemFilter(filterName: 'filterName'),
+      MenuItemFilter(filterName: 'filterName'),
+      MenuItemFilter(filterName: 'filterName'),
+      MenuItemFilter(filterName: 'filterName'),
+    ],
+  ),
+);
+
+Widget filtersMock = Container();
